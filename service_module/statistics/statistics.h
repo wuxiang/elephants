@@ -1,28 +1,40 @@
 #ifndef STATISTICS_H_
 #define STATISTICS_H_
-#include <boost/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <map>
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
+#include "TinyObject.h"
+#include "Log.h"
+#include "timer.h"
 
-namespace Elephants 
+enum  THandleCount
 {
-    class  Timer_micro_surive
-    {
-    public:
-        Timer_micro_surive();
-        virtual ~Timer_micro_surive();
-        virtual void event();
-    private:
-        boost::posix_time::ptime  begin;
-        std::size_t    elapsed;  // microsec
-    };
+    ATOM_ADD_TOTAL = 0,
+    ATOM_ADD_SUCC,
+    ATOM_ADD_FAIL,
+    ATOM_UNKNOW,
+};
 
-    class Statistics_Base
-    {
-    public:
-    protected:
-    };
-}
+class QBA_statistics: boost::noncopyable
+{
+public:
+    static QBA_statistics& instance();
+    void init(const long  num, boost::asio::io_service& io_service_);
+    void  handleCounter(const long idx, const THandleCount&  ht);
+
+private:
+    QBA_statistics();
+    ~QBA_statistics();
+    void  printInfo();
+
+private:
+    typedef  boost::shared_ptr<RunFlagCount>  RunFlagCountPTR;
+    long   executor_number;
+    std::vector<RunFlagCountPTR>   statisticsInfo;
+    TinyCount    unknown;
+    boost::shared_ptr<Elephants::TimerBase>    timerPtr;
+};
 
 #endif
+
 
