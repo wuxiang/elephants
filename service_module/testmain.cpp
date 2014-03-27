@@ -3,8 +3,9 @@
 #include "util.h"
 #include "io_service_pool.h"
 #include "timer.h"
-#include "statistics.h"
+#include "statistics_base.h"
 #include "signal_system.h"
+#include "uuid.h"
 
 void print(const std::string value)
 {
@@ -21,6 +22,9 @@ void ternal_process(Elephants::io_service_pool* pool, const int signum)
 
 int main()
 {
+    Elephants::UUID  id;
+    std::string val = id.get_id();
+    std::size_t len = val.size();
     std::cout << "++++++++++++++++++++++++++++++work start++++++++++++++++++++++" << std::endl;
     Elephants::io_service_pool  pool(1);
     {

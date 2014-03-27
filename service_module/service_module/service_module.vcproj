@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\project\service_module\statistics;F:\project\service_module\signal;F:\project\service_module\my_util;F:\project\service_module\log;F:\project\service_module\executor;F:\project\service_module\config;F:\project\service_module\asio;E:\"
+				AdditionalIncludeDirectories="F:\elephants\service_module\tiny_module;F:\elephants\service_module\uuid;F:\elephants\service_module\statistics;F:\elephants\service_module\signal;F:\elephants\service_module\my_util;F:\elephants\service_module\log;F:\elephants\service_module\executor;F:\elephants\service_module\config;F:\elephants\service_module\asio;E:\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\statistics\statistics_base.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\testmain.cpp"
 				>
 			</File>
@@ -209,7 +213,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\tiny_module\TinyObject.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\my_util\util.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\uuid\uuid.cpp"
 				>
 			</File>
 		</Filter>
@@ -247,11 +259,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\statistics\statistics_base.h"
+				>
+			</File>
+			<File
 				RelativePath="..\asio\timer.h"
 				>
 			</File>
 			<File
+				RelativePath="..\tiny_module\TinyObject.h"
+				>
+			</File>
+			<File
 				RelativePath="..\my_util\util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\uuid\uuid.h"
 				>
 			</File>
 		</Filter>

@@ -3,20 +3,18 @@
 #include <boost/thread.hpp>
 #include <time.h>
 #include <string>
-#include "msgbus/variant.h"
-#include "msgbus/message.h"
 #include "Log.h"
 
 class TinyCount
 {
 public:
     TinyCount();
-    msgbus::int64_t  add_atom();
-    msgbus::int64_t  values();
+    long  add_atom();
+    long  values();
 
 private:
     boost::mutex  mtx;
-    msgbus::int64_t   seed;
+    long   seed;
 };
 
 class RunFlagCount
@@ -48,8 +46,8 @@ public:
 class PrintMessage
 {
 public:
-    static void printReqMessage(const msgbus::Message& msg);
-    static void print_map(const msgbus::Message::Map &map, int depth);
+    //static void printReqMessage(const msgbus::Message& msg);
+    //static void print_map(const msgbus::Message::Map &map, int depth);
 };
 
 #endif

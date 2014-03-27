@@ -1,5 +1,5 @@
-#ifndef STATISTICS_H_
-#define STATISTICS_H_
+#ifndef STATISTICS_BASE_H_
+#define STATISTICS_BASE_H_
 #include <boost/thread.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <map>
