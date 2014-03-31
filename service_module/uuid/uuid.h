@@ -1,5 +1,5 @@
-#ifndef UUID_H_
-#define UUID_H_
+#ifndef __UUID_H_
+#define __UUID_H_
 #include <string>
 #include <time.h>
 #include <cstdlib>

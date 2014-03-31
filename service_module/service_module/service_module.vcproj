@@ -193,6 +193,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\log\log_module.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\message\message.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\signal\signal_system.cpp"
 				>
 			</File>
@@ -224,6 +232,10 @@
 				RelativePath="..\uuid\uuid.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\message\variant.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -248,6 +260,14 @@
 			</File>
 			<File
 				RelativePath="..\log\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\log\log_module.h"
+				>
+			</File>
+			<File
+				RelativePath="..\message\message.h"
 				>
 			</File>
 			<File
@@ -276,6 +296,10 @@
 			</File>
 			<File
 				RelativePath="..\uuid\uuid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\message\variant.h"
 				>
 			</File>
 		</Filter>

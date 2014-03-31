@@ -1,5 +1,5 @@
 #include "uuid.h"
-#if defined(_WIN32)
+#if defined(WIN32)
 #include <WinSock2.h>
 #include <WinBase.h>
 #else
@@ -53,7 +53,7 @@ bool UUID::getIP(IPV4& ip)
 #endif
 
 
-    if(gethostname(szBuffer, sizeof(szBuffer)) == SOCKET_ERROR)
+    if(gethostname(szBuffer, sizeof(szBuffer)) == -1)
     {
 #ifdef WIN32
         WSACleanup();
@@ -70,11 +70,29 @@ bool UUID::getIP(IPV4& ip)
         return false;
     }
 
+#ifdef WIN32
     //Obtain the computer's IP
     ip.b1 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b1;
     ip.b2 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b2;
     ip.b3 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b3;
     ip.b4 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b4;
+#else
+    for (int i = 0; host->h_addr_list[i] != NULL; ++i)
+    {
+        if (host->h_addrtype == AF_INET)
+        {
+            struct in_addr* paddr = (struct in_addr*)(host->h_addr_list[i]);
+            ip.b1 = 0xff & paddr->s_addr;
+            ip.b2 = 0xff & (paddr->s_addr >> 8);
+            ip.b3 = 0xff & (paddr->s_addr >> 16);
+            ip.b4 = 0xff & (paddr->s_addr >> 24);
+        }
+        else
+        {
+            struct in6_addr* paddr = (struct in_addr6*)(host->h_addr_list[i]);
+        }
+    }
+#endif
 
 #ifdef WIN32
     WSACleanup();
