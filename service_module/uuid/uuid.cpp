@@ -1,5 +1,5 @@
 #include "uuid.h"
-#if defined(WIN32)
+#ifdef WIN32
 #include <WinSock2.h>
 #include <WinBase.h>
 #else
@@ -89,7 +89,11 @@ bool UUID::getIP(IPV4& ip)
         }
         else
         {
-            struct in6_addr* paddr = (struct in_addr6*)(host->h_addr_list[i]);
+            struct in6_addr* paddr = (struct in6_addr*)(host->h_addr_list[i]);
+            ip.b1 = paddr->s6_addr[0];
+            ip.b2 = paddr->s6_addr[1];
+            ip.b3 = paddr->s6_addr[2];
+            ip.b4 = paddr->s6_addr[3];
         }
     }
 #endif
@@ -120,7 +124,7 @@ void UUID::generator()
     }
     else
     {
-        srand(time(NULL));
+        srand((unsigned)(time(NULL)));
         std::size_t rd = std::rand();
         sprintf(ip,"%08x", rd);
     }
