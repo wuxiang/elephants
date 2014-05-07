@@ -7,6 +7,7 @@
 //const int ZOO_CONNECTING_STATE = CONNECTING_STATE_DEF;
 //const int ZOO_ASSOCIATING_STATE = ASSOCIATING_STATE_DEF;
 //const int ZOO_CONNECTED_STATE = CONNECTED_STATE_DEF;
+zhandle_t* zk;
 static const char* state2String(int state){
   if (state == 0)
     return "CLOSED_STATE";
@@ -82,6 +83,128 @@ void watcher(zhandle_t *zzh, int type, int state, const char *path, void* contex
             zookeeper_close(zzh);
         }
     }
+
+	if (type == ZOO_CHANGED_EVENT)
+	{
+		fprintf(stderr, "node data change event\n");
+        if (state == ZOO_CONNECTED_STATE)
+		{
+            const clientid_t *id = zoo_client_id(zzh);
+            if (myid.client_id == 0 || myid.client_id != id->client_id)
+			{
+                myid = *id;
+                fprintf(stderr, "Got a new session id: 0x%llx\n", (long long)( myid.client_id));
+                if (clientIdFile)
+				{
+                    FILE *fh = fopen(clientIdFile, "w");
+                    if (!fh)
+					{
+                        perror(clientIdFile);
+                    } else
+					{
+                        int rc = fwrite(&myid, sizeof(myid), 1, fh);
+                        if (rc != sizeof(myid))
+						{
+                            perror("writing client id");
+                        }
+                        fclose(fh);
+                    }
+                }
+            }
+        } else if (state == ZOO_AUTH_FAILED_STATE)
+		{
+            fprintf(stderr, "Authentication failure. Shutting down...\n");
+            zookeeper_close(zzh);
+        } else if (state == ZOO_EXPIRED_SESSION_STATE)
+		{
+            fprintf(stderr, "Session expired. Shutting down...\n");
+            zookeeper_close(zzh);
+        }
+	}
+
+	if (ZOO_DELETED_EVENT == type)
+	{
+		fprintf(stderr, "delete node event\n");
+        if (state == ZOO_CONNECTED_STATE)
+		{
+            const clientid_t *id = zoo_client_id(zzh);
+            if (myid.client_id == 0 || myid.client_id != id->client_id)
+			{
+                myid = *id;
+                fprintf(stderr, "Got a new session id: 0x%llx\n", (long long)( myid.client_id));
+                if (clientIdFile)
+				{
+                    FILE *fh = fopen(clientIdFile, "w");
+                    if (!fh)
+					{
+                        perror(clientIdFile);
+                    } else
+					{
+                        int rc = fwrite(&myid, sizeof(myid), 1, fh);
+                        if (rc != sizeof(myid))
+						{
+                            perror("writing client id");
+                        }
+                        fclose(fh);
+                    }
+                }
+            }
+        } else if (state == ZOO_AUTH_FAILED_STATE)
+		{
+            fprintf(stderr, "Authentication failure. Shutting down...\n");
+            zookeeper_close(zzh);
+        } else if (state == ZOO_EXPIRED_SESSION_STATE)
+		{
+            fprintf(stderr, "Session expired. Shutting down...\n");
+            zookeeper_close(zzh);
+        }
+	}
+
+	if (ZOO_CHILD_EVENT == type)
+	{
+		fprintf(stderr, "child node event\n");
+        if (state == ZOO_CONNECTED_STATE)
+		{
+			const clientid_t *id = zoo_client_id(zzh);
+			if (myid.client_id == 0 || myid.client_id != id->client_id)
+			{
+				myid = *id;
+				fprintf(stderr, "Got a new session id: 0x%llx\n", (long long)( myid.client_id));
+				if (clientIdFile)
+				{
+					FILE *fh = fopen(clientIdFile, "w");
+					if (!fh)
+					{
+						perror(clientIdFile);
+					} else
+					{
+						int rc = fwrite(&myid, sizeof(myid), 1, fh);
+						if (rc != sizeof(myid))
+						{
+							perror("writing client id");
+						}
+						fclose(fh);
+					}
+				}
+			}
+
+			String_vector cRes;
+			if (ZOK != zoo_get_children(zk, "/zk_test", 1,  &cRes))
+			{
+				fprintf(stderr, "set node value failed!!!\n");
+				zookeeper_close(zk);
+				exit(0);
+			}
+        } else if (state == ZOO_AUTH_FAILED_STATE)
+		{
+            fprintf(stderr, "Authentication failure. Shutting down...\n");
+            zookeeper_close(zzh);
+        } else if (state == ZOO_EXPIRED_SESSION_STATE)
+		{
+            fprintf(stderr, "Session expired. Shutting down...\n");
+            zookeeper_close(zzh);
+        }
+	}
 	fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 }
 
@@ -139,9 +262,34 @@ void stat_completion(int rc, const struct Stat *stat, const void *data)
 	fprintf(stderr, "pzxid = 0x%llx\n", stat->pzxid);
 }
 
+void data_completion(int rc, const char *value, int value_len, const struct Stat *stat, const void *data)
+{
+	fprintf(stderr, "[%s]: rc = %d, value = %s\n", (char*)data, rc, value);
+	fprintf(stderr, "czxid = 0x%llx\n", stat->czxid);
+	fprintf(stderr, "mzxid = 0x%llx\n", stat->mzxid);
+	fprintf(stderr, "ctime = %s\n", convert(stat->ctime / 1000).c_str());
+	fprintf(stderr, "mtime = %s\n", convert(stat->mtime / 1000).c_str());
+	fprintf(stderr, "version = %ld\n", stat->version);
+	fprintf(stderr, "cversion = %ld\n", stat->cversion);
+	fprintf(stderr, "aversion = %ld\n", stat->aversion);
+	fprintf(stderr, "ephemeralOwner = 0x%llx\n", stat->ephemeralOwner);
+	fprintf(stderr, "dataLength = %ld\n", stat->dataLength);
+	fprintf(stderr, "numChildren = %ld\n", stat->numChildren);
+	fprintf(stderr, "pzxid = 0x%llx\n", stat->pzxid);
+}
+
+void cat_String_vector(String_vector&  vec)
+{
+	for (int32_t i = 0; i < vec.count; ++i)
+	{
+		fprintf(stderr, "%s\n", (vec.data)[i]);
+	}
+}
+
 int main(int argc, char* argv[])
 {
-	zhandle_t* zk = zookeeper_init("192.168.1.234:2181,192.168.1.234:2182,192.168.1.234:2183", watcher, 10000, &myid, NULL, 0);
+	//zhandle_t* zk = zookeeper_init("192.168.1.234:2181,192.168.1.234:2182,192.168.1.234:2183", watcher, 10000, &myid, NULL, 0);
+	zk = zookeeper_init("192.168.1.234:2181,192.168.1.234:2182,192.168.1.234:2183", watcher, 10000, &myid, NULL, 0);
 	if (!zk)
 	{
 		std::cout << "NULL zk" << std::endl;
@@ -206,10 +354,75 @@ int main(int argc, char* argv[])
 	//	zookeeper_close(zk);
 	//	exit(0);
 	//}
+	//
+
+	//4, get
+	struct Stat  gst;
+	char  rBuf[1024] = { 0 };
+	int len = 1024;
+	if (ZOK != zoo_get(zk, "/zoo0000000005", 1, rBuf, &len, &gst))
+	{
+		fprintf(stderr, "get node value failed!!!\n");
+		zookeeper_close(zk);
+		exit(0);
+	}
+	//fprintf(stderr, "rBuf: %s\n", rBuf);
+	//fprintf(stderr, "czxid = 0x%llx\n", gst.czxid);
+	//fprintf(stderr, "mzxid = 0x%llx\n", gst.mzxid);
+	//fprintf(stderr, "ctime = %s\n", convert(gst.ctime / 1000).c_str());
+	//fprintf(stderr, "mtime = %s\n", convert(gst.mtime / 1000).c_str());
+	//fprintf(stderr, "version = %ld\n", gst.version);
+	//fprintf(stderr, "cversion = %ld\n", gst.cversion);
+	//fprintf(stderr, "aversion = %ld\n", gst.aversion);
+	//fprintf(stderr, "ephemeralOwner = 0x%llx\n", gst.ephemeralOwner);
+	//fprintf(stderr, "dataLength = %ld\n", gst.dataLength);
+	//fprintf(stderr, "numChildren = %ld\n", gst.numChildren);
+	//fprintf(stderr, "pzxid = 0x%llx\n", gst.pzxid);
+	//asynchorinize
+	//if (ZOK != zoo_aget(zk, "/zoo0000000005", 1, data_completion, "asynchronize get"))
+	//{
+	//	fprintf(stderr, "asynchronize get node data failed\n");
+	//	zookeeper_close(zk);
+	//	exit(0);
+	//}
+
+	//5,set
+	//char wBuf[1024] = { 0 };
+	//strncpy(wBuf, "hello ellison!!!", 16);
+	//if (ZOK != zoo_set(zk, "/zoo0000000005", wBuf, 1024, gst.version))
+	//{
+	//	fprintf(stderr, "set node value failed!!!\n");
+	//	zookeeper_close(zk);
+	//	exit(0);
+	//}
+
+	// get child node
+	//String_vector cRes;
+	//if (ZOK != zoo_get_children(zk, "/zk_test", 1,  &cRes))
+	//{
+	//	fprintf(stderr, "set node value failed!!!\n");
+	//	zookeeper_close(zk);
+	//	exit(0);
+	//}
+	//cat_String_vector(cRes);
+
+	//6 create ephemeral node
+	char buf[1024] = { 0 };
+    if (ZOK != zoo_create(zk, "/zk_test/zk_child", "shanghai", 8, &ZOO_OPEN_ACL_UNSAFE, ZOO_EPHEMERAL, buf, 1024))
+    {
+        std::cout << "create path failed" << std::endl;
+	    zookeeper_close(zk);
+        exit(0);
+    }
+    fprintf(stderr, "zoo_create: buffer[%s]\n", buf);
 
     std::cout << "+++++++++++++++++++++++++++++++++++++test zookeeper client success++++++++++++++++++++++++++++++++\n" << std::endl;
 
-	while (1);
+	while (1)
+	{
+		sleep(10);
+	}
     zookeeper_close(zk);
 	return 0;
 }
+

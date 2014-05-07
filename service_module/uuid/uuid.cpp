@@ -90,6 +90,10 @@ bool UUID::getIP(IPV4& ip)
         else
         {
             struct in6_addr* paddr = (struct in6_addr*)(host->h_addr_list[i]);
+            if (in6addr_loopback == *paddr)
+            {
+                continue;
+            }
             ip.b1 = paddr->s6_addr[0];
             ip.b2 = paddr->s6_addr[1];
             ip.b3 = paddr->s6_addr[2];

@@ -45,6 +45,7 @@ namespace Elephants
                 b2 = ip.b2;
                 b3 = ip.b3;
                 b4 = ip.b4;
+                return *this;
             }
         };
 
