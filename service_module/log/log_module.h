@@ -27,10 +27,10 @@ namespace Elephants
 	    DEBUG		= 7,   /* debug-level messages */
     };
 
-    void DA_LOG(const std::string& mod, const LOG_LEVEL lev, const char*  str,  ...);
-    void DA_LOG(const std::string& mod, const LOG_LEVEL lev, const std::string& content);
-    void DA_ERRLOG(const char*  fmt,  ...);
-    void DA_ERRLOG(const std::string& content);
+    extern void LOG(const std::string& mod, const LOG_LEVEL lev, const char*  str,  ...);
+    extern void LOG(const std::string& mod, const LOG_LEVEL lev, const std::string& content);
+    extern void ERRLOG(const char*  fmt,  ...);
+    extern void ERRLOG(const std::string& content);
 
 
     class CLog
@@ -57,6 +57,7 @@ namespace Elephants
 	    public:
             WHanler(const std::string&  mod, const LOG_LEVEL lev);
 		    void inputContent(const LOG_LEVEL lev, const std::string& content);
+            void setLogLevel(const LOG_LEVEL lev);
 
 	    private:
 		    std::string  logtime(std::time_t  sec);
@@ -84,8 +85,8 @@ namespace Elephants
 
 }
 
-#define DA_LOG(...) Elephants::DA_LOG(__VA_ARGS__)
-#define DA_ERRLOG(...) Elephants::DA_ERRLOG(__VA_ARGS__)
+#define DA_LOG(...) Elephants::LOG(__VA_ARGS__)
+#define DA_ERRLOG(...) Elephants::ERRLOG(__VA_ARGS__)
 
 #endif //_CLOG_H_
 

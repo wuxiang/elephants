@@ -4,3 +4,9 @@
 *.user
 debug
 Debug
+*.manifest
+*.res
+*.obj
+*.idb
+*.pdb
+*.htm

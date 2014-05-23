@@ -68,6 +68,10 @@ namespace Elephants
         {
             mFile.insert(std::make_pair(name, WHandlerPtr(new (std::nothrow) WHanler(name, reflex(level)))));
         }
+        else
+        {
+            it->second->setLogLevel(reflex(level));
+        }
     }
 
     std::string CLog::today()
@@ -163,15 +167,22 @@ namespace Elephants
         }
     }
 
+    void CLog::WHanler::setLogLevel(const LOG_LEVEL lev)
+    {
+        boost::lock_guard<boost::mutex>  lock(this->mtx);
+        level = lev;
+    }
+
+
     void CLog::WHanler::inputContent(const LOG_LEVEL lev, const std::string& content)
     {
 	    // print log level less than config's level
+        boost::lock_guard<boost::mutex>  lock(this->mtx);
 	    if ( lev > this->level)
 	    {
 		    return;
 	    }
 
-	    boost::lock_guard<boost::mutex>  lock(this->mtx);
         if (this->iFile.is_open() && CLog::today() != timestamp)
 	    {
 		    iFile.flush();
@@ -259,7 +270,7 @@ namespace Elephants
 
 
     /**************************global log function*****************************/
-    void DA_LOG(const std::string& mod, const LOG_LEVEL lev, const char* str,  ...)
+    void LOG(const std::string& mod, const LOG_LEVEL lev, const char* str,  ...)
     {
 	    va_list  args;
 	    va_start(args, str);
@@ -273,13 +284,13 @@ namespace Elephants
 
     }
 
-    void DA_LOG(const std::string& mod, const LOG_LEVEL lev, const std::string& content)
+    void LOG(const std::string& mod, const LOG_LEVEL lev, const std::string& content)
     {
 	    CLog::instance().wLog2File(mod, lev, content);
     }
 
 
-    void DA_ERRLOG(const char*  fmt,  ...)
+    void ERRLOG(const char*  fmt,  ...)
     {
         int size=100;
         std::string str;
@@ -316,7 +327,7 @@ namespace Elephants
         std::cerr << time << ']' << str << std::endl;
     }
 
-    void DA_ERRLOG(const std::string& content)
+    void ERRLOG(const std::string& content)
     {
         time_t timeval;
         const tm    *timeinfo;
