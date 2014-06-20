@@ -17,22 +17,110 @@
 //
 #ifndef MSGPACK_SBUFFER_HPP__
 #define MSGPACK_SBUFFER_HPP__
+#include <stdlib.h>
+#include <string.h>
 
 #include "sbuffer.h"
 #include <stdexcept>
 
-namespace msgpack {
+#ifndef MSGPACK_SBUFFER_INIT_SIZE
+#define MSGPACK_SBUFFER_INIT_SIZE 8192
+#endif
+
+namespace msgpack 
+{
+
+class msgpack_sbuffer 
+{
+protected:
+    size_t size;
+    char* data;
+    size_t alloc;
+
+private:
+    void msgpack_sbuffer_init();
+    void msgpack_sbuffer_destroy();
+
+public:
+    int msgpack_sbuffer_write(const char* buf, size_t len);
+    void msgpack_sbuffer_clear();
+    msgpack_sbuffer();
+    ~msgpack_sbuffer();
+};
+
+msgpack_sbuffer::msgpack_sbuffer()
+{
+    msgpack_sbuffer_init();
+}
+
+msgpack_sbuffer::~msgpack_sbuffer()
+{
+    msgpack_sbuffer_destroy();
+}
 
 
-class sbuffer : public msgpack_sbuffer {
+void msgpack_sbuffer::msgpack_sbuffer_init()
+{
+    if (data)
+    {
+        ::free(data);
+    }
+    
+    size = 0;
+    data = NULL;
+    alloc = 0;
+}
+
+void msgpack_sbuffer::msgpack_sbuffer_destroy()
+{
+    size = 0;
+    alloc = 0;
+    free(data);
+}
+
+int msgpack_sbuffer::msgpack_sbuffer_write(const char* buf, size_t len)
+{
+    if(alloc - size < len) 
+    {
+        size_t nsize = (alloc) ? alloc * 2 : MSGPACK_SBUFFER_INIT_SIZE;
+
+        while(nsize < size + len) { nsize *= 2; }
+
+        void* tmp = realloc(data, nsize);
+        if(!tmp) { return -1; }
+
+        memset((char*)tmp + size, 0, nsize - size);
+        data = (char*)tmp;
+        alloc = nsize;
+    }
+
+    memcpy(data + size, buf, len);
+    size += len;
+    return 0;
+}
+
+void msgpack_sbuffer::msgpack_sbuffer_clear()
+{
+    size = 0;
+    memset(data, 0, size);
+}
+
+
+
+
+class sbuffer : public msgpack_sbuffer 
+{
+private:
+    typedef msgpack_sbuffer base;
+
 public:
 	sbuffer(size_t initsz = MSGPACK_SBUFFER_INIT_SIZE)
 	{
-		if(initsz == 0) {
-			base::data = NULL;
-		} else {
+		if(initsz > 0) 
+        {
 			base::data = (char*)::malloc(initsz);
-			if(!base::data) {
+			if(!base::data) 
+            {
 				throw std::bad_alloc();
 			}
 		}
@@ -43,13 +131,13 @@ public:
 
 	~sbuffer()
 	{
-		::free(base::data);
 	}
 
 public:
 	void write(const char* buf, size_t len)
 	{
-		if(base::alloc - base::size < len) {
+		if(base::alloc - base::size < len) 
+        {
 			expand_buffer(len);
 		}
 		memcpy(base::data + base::size, buf, len);
@@ -71,21 +159,15 @@ public:
 		return base::size;
 	}
 
-	char* release()
-	{
-		return msgpack_sbuffer_release(this);
-	}
-
 	void clear()
 	{
-		msgpack_sbuffer_clear(this);
+		msgpack_sbuffer_clear();
 	}
 
 private:
 	void expand_buffer(size_t len)
 	{
-		size_t nsize = (base::alloc > 0) ?
-				base::alloc * 2 : MSGPACK_SBUFFER_INIT_SIZE;
+		size_t nsize = (base::alloc > 0) ?base::alloc * 2 : MSGPACK_SBUFFER_INIT_SIZE;
 	
 		while(nsize < base::size + len) { nsize *= 2; }
 	
@@ -94,12 +176,12 @@ private:
 			throw std::bad_alloc();
 		}
 	
+        //memset((char*)tmp + size, 0, nsize - size);
+        memset((char*)tmp + base::size, 0, nsize - base::size);
 		base::data = (char*)tmp;
 		base::alloc = nsize;
 	}
 
-private:
-	typedef msgpack_sbuffer base;
 
 private:
 	sbuffer(const sbuffer&);
