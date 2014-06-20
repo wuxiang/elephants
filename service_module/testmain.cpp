@@ -6,6 +6,7 @@
 #include "statistics_base.h"
 #include "signal_system.h"
 #include "uuid.h"
+#include "IntervalTree.h"
 
 void print(const std::string value)
 {

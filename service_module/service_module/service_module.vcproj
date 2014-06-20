@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\elephants\service_module\tiny_module;F:\elephants\service_module\uuid;F:\elephants\service_module\statistics;F:\elephants\service_module\signal;F:\elephants\service_module\my_util;F:\elephants\service_module\log;F:\elephants\service_module\executor;F:\elephants\service_module\config;F:\elephants\service_module\asio;E:\"
+				AdditionalIncludeDirectories="F:\elephants\service_module\algorithm\trees\interval_tree;F:\elephants\service_module\tiny_module;F:\elephants\service_module\uuid;F:\elephants\service_module\statistics;F:\elephants\service_module\signal;F:\elephants\service_module\my_util;F:\elephants\service_module\log;F:\elephants\service_module\executor;F:\elephants\service_module\config;F:\elephants\service_module\asio;E:\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -247,7 +247,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\executor\executor.h"
+				RelativePath="..\algorithm\trees\interval_tree\IntervalTree.h"
 				>
 			</File>
 			<File

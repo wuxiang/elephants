@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
 
     Elephants::object_pool<TestClass>  obj_pool;
     TestClass* pTestFromObj = obj_pool.malloc();
-    fprintf(stderr, "%p\n", pTestFromObj);
     bool res = obj_pool.is_from(pTestFromObj);
     std::string vStr = res ? "true" : "false";
     std::cout << vStr << std::endl;
@@ -74,6 +73,12 @@ int main(int argc, char* argv[])
     }
     fasterpool.destroy(pFaster);
     fasterpool.deallocate(pFaster, 1);
+
+    void* pSingleton = Elephants::singleton_pool<TestClass, sizeof(TestClass)>::malloc();
+    fprintf(stderr, "singleton==>%p\n", pSingleton);
+    bool resa = Elephants::singleton_pool<TestClass, sizeof(TestClass)>::is_from(pSingleton);
+    std::string vStratom = resa ? "true" : "false";
+    std::cout << vStratom << std::endl;
 
 
     while(1);
