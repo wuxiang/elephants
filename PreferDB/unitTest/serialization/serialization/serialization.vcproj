@@ -186,6 +186,10 @@
 				RelativePath="..\..\..\serialization\include\sbuffer.hpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\serialization\include\zbuffer.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="资源文件"

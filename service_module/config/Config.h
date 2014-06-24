@@ -11,13 +11,14 @@
 #include <vector>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/shared_ptr.hpp>
 #include <time.h>
 #include <map>
 
 using std::string;
 using std::map;
 using std::vector;
-#define AUTOSYNC(a) boost::mutex::scoped_lock lock(a)
+//#define AUTOSYNC(a) boost::mutex::scoped_lock lock(a)
 class Config
 {
 public:

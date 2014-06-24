@@ -7,7 +7,7 @@
 
 
 #include "Config.h"
-#include "Log.h"
+#include "log_module.h"
 //#include "BasicType.h"
 #include <fstream>
 #include <iostream>
@@ -15,9 +15,11 @@
 #include "boost/algorithm/string.hpp"
 #include <boost/filesystem/operations.hpp>
 #include <time.h>
+#include "executor.h"
+#include "reflexData.h"
 using namespace std;
 
-#define CHECK_INTERVAL 5 //5 sec
+#define CHECK_INTERVAL 20 //20 sec
 #define DEFAULT_SERVER_NUM 5
 #define DEFAULT_TIMEOUT 30 //30 sec
 #define FILE_NAME "setting.ini"
@@ -31,7 +33,7 @@ Config::Instance()
     if(NULL == instance_){
         instance_ = new Config;
         instance_->init();
-//         thread_ = boost::thread(boost::bind(&Config::run,instance_));
+        thread_ = boost::thread(boost::bind(&Config::run,instance_));
     }
     return instance_;
 }
@@ -56,13 +58,31 @@ Config::run()
     while(1){
         boost::this_thread::sleep(boost::posix_time::seconds(CHECK_INTERVAL));
         init();
+
+        if (!Elephants::CLog::instance().init(Config::Instance()->get_vector("Log")))
+        {
+            DA_ERRLOG("CLog reinit failed!!!");
+            return ;
+        }
+
+        if (!executor::instance().init())
+        {
+            DA_ERRLOG("executor reinit failed!!!");
+            return ;
+        }
+
+        if (!ReflexData::instance().updateConfig())
+        {
+            DA_ERRLOG("ReflexData reinit failed!!!");
+            return ;
+        }
     }
 }
 
 void
 Config::init()
 {
-    AUTOSYNC(mutex_);
+    map<string, vector<string> >   data;
     boost::filesystem::path path(FILE_NAME);
     try{
         boost::filesystem::path curpath = boost::filesystem::current_path();
@@ -98,27 +118,36 @@ Config::init()
             boost::algorithm::trim(title);
             boost::algorithm::trim(content);
 
-            m_setting[title].push_back(content);
+            data[title].push_back(content);
         }
     }
     catch(boost::bad_lexical_cast& e){
         DA_ERRLOG("[%s]%s",__FUNCTION__,e.what());
+        boost::lock_guard<boost::mutex>  lock(mutex_);
         init_=false;
+        return;
     }
-    init_ = true;
-    DA_LOG("Config.ini updated");
-    return;
+    DA_LOG("process", Elephants::DEBUG, "Config.ini updated");
+
+    {
+        boost::lock_guard<boost::mutex>  lock(mutex_);
+        init_ = true;
+        m_setting = data;
+    }
 }
 
 void
 Config::clear()
 {
+    boost::lock_guard<boost::mutex>  lock(mutex_);
     m_setting.clear();
 }
 
 const string&
 Config::get(const string &key)
 {
+    boost::lock_guard<boost::mutex>  lock(mutex_);
+
     if(m_setting.count(key)){
         return m_setting[key][0];
     }
@@ -128,7 +157,7 @@ Config::get(const string &key)
 const vector<string>&
 Config::get_vector(const string &key)
 {
-    AUTOSYNC(mutex_);
+    boost::lock_guard<boost::mutex>  lock(mutex_);
     if(m_setting.count(key)){
         return m_setting[key];
     }
@@ -138,6 +167,8 @@ Config::get_vector(const string &key)
 int
 Config::count(const string &key)
 {
+    boost::lock_guard<boost::mutex>  lock(mutex_);
+
     if(0 == m_setting.count(key)){
         return 0;
     }

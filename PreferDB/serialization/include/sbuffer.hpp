@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sbuffer.h"
 #include <stdexcept>
 
 #ifndef MSGPACK_SBUFFER_INIT_SIZE
@@ -73,9 +72,12 @@ void msgpack_sbuffer::msgpack_sbuffer_init()
 
 void msgpack_sbuffer::msgpack_sbuffer_destroy()
 {
-    size = 0;
-    alloc = 0;
-    free(data);
+    if (data)
+    {
+        size = 0;
+        alloc = 0;
+        free(data);
+    }    
 }
 
 int msgpack_sbuffer::msgpack_sbuffer_write(const char* buf, size_t len)
