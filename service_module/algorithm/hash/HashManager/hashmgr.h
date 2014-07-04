@@ -13,7 +13,7 @@
 
 #ifndef ___HASH_MANAGER_H___
 #define ___HASH_MANAGER_H___
-
+#include <string>
 #include "rhsyscfg.h"
 #include "clutil.h"
 
@@ -97,6 +97,9 @@ public:
 
 	int HashPath(char *pszBasePath, char *pszFileSpec);
 	int HashFile(char *pszFile);
+    void HashStrWithMD5(const char* src, unsigned long  len, std::string& dst);
+    int HashFileWithMD5(char *pszFile, std::string& dst);
+
 
 private:
 	void fmtFixHashOutput(int nCursorPos);

@@ -22,6 +22,7 @@
 
 int main(int argc, char *argv[])
 {
+    // all below is test code
 	int i = 0;
 	bool bOnce = true;
 	char szPath[RH_MAX_PATH];
@@ -30,6 +31,14 @@ int main(int argc, char *argv[])
 	char szTemp[RH_MAX_BUFFER];
 	int iErrorCode = 0;
 	CHashManager hashmgr;
+
+    //------here is test my program------
+    //const char*  ptr = "wuxiang";
+    //std::string  dst;
+    //hashmgr.HashStr(ptr, strlen(ptr), dst);
+    //printf("\n%s\n", dst.c_str());
+    //return 0;
+    //-----------------------------------
 
 	getcwd(szOrgPath, RH_MAX_PATH);
 

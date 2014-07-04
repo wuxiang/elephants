@@ -153,6 +153,58 @@ int CHashManager::HashPath(char *pszBasePath, char *pszFileSpec)
 	return RH_SUCCESS;
 }
 
+void CHashManager::HashStrWithMD5(const char* src, unsigned long  len, std::string& dst)
+{
+    MD5Init(&m_md5, 0);
+    MD5Update(&m_md5, (unsigned  char*)src, len);
+    MD5Final(&m_md5);
+
+    for (size_t ii = 0; ii < 16; ++ii)
+    {
+        char buf[8] = { 0 };
+        sprintf(buf, "%02x", (m_md5.digest)[ii]);
+
+        dst += buf;
+    }
+}
+
+int CHashManager::HashFileWithMD5(char *pszFile, std::string& dst)
+{
+    MD5Init(&m_md5, 0);
+    FILE *fp = NULL;
+    unsigned char pBuf[SIZE_HASH_BUFFER] = { 0 };
+    unsigned long uRead = 0;
+    unsigned char pTemp[256];
+    char szTemp[RH_MAX_BUFFER] = { 0 };
+    int i = 0;
+
+    fp = fopen(pszFile, "rb");
+    if(fp == NULL) return RH_CANNOT_OPEN_FILE;
+
+    while (1)
+    {
+        uRead = fread(pBuf, 1, SIZE_HASH_BUFFER, fp);
+        if (uRead != 0)
+        {
+            MD5Update(&m_md5, pBuf, uRead);
+        }
+
+        if(uRead != SIZE_HASH_BUFFER) break;
+
+    }
+
+    MD5Final(&m_md5);
+    for (size_t ii = 0; ii < 16; ++ii)
+    {
+        char buf[8] = { 0 };
+        sprintf(buf, "%02x", (m_md5.digest)[ii]);
+        dst += buf;
+    }
+    return RH_SUCCESS;
+}
+
+
+
 int CHashManager::HashFile(char *pszFile)
 {
 	FILE *fp = NULL;
