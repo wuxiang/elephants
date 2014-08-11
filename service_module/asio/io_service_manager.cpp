@@ -2,6 +2,12 @@
 
 namespace Elephants
 {
+    io_service_manager&  io_service_manager::instance()
+    {
+        static io_service_manager  handler;
+        return handler;
+    }
+
     bool  io_service_manager::init(const std::size_t  sz)
     {
         if (sz <= 0)
@@ -18,6 +24,19 @@ namespace Elephants
         isInited = true;
         return true;
     }
+
+    void io_service_manager::run()
+    {
+        if (pool)
+        {
+            pool->run();
+        }
+        else
+        {
+            throw std::runtime_error(std::string("pool ptr is null"));
+        }
+    }
+
 
     boost::asio::io_service&  io_service_manager::get_io_service()
     {
@@ -44,8 +63,6 @@ namespace Elephants
             pool->stop();
         }
     }
-
-
 }
 
 

@@ -14,6 +14,12 @@ namespace Elephants
 
     }
 
+    void TimerBase::cancle()
+    {
+
+    }
+
+
     void TimerBase::run(const boost::system::error_code&  e)
     {
         if (!e)
@@ -35,8 +41,14 @@ namespace Elephants
 
     PeriodTimer::~PeriodTimer()
     {
+        //m_Timer.cancel();
+    }
+
+    void PeriodTimer::cancle()
+    {
         m_Timer.cancel();
     }
+
 
     void PeriodTimer::wait_async()
     {
@@ -60,19 +72,34 @@ namespace Elephants
             boost::posix_time::time_duration distance = local - utc;
             tZone = local_time - distance;
         }
+
+        if (tZone < utc)
+        {
+            tZone += boost::gregorian::days(1);
+        }
+
+        //std::cout << boost::posix_time::to_simple_string(local_time) << std::endl;
+        //std::cout << boost::posix_time::to_simple_string(tZone) << std::endl;
     }
 
     PointerTimer::~PointerTimer()
     {
+        //m_timer.cancel();
+    }
+
+    void PointerTimer::cancle()
+    {
         m_timer.cancel();
     }
+
 
     void PointerTimer::wait_async()
     {
         boost::posix_time::ptime  curr = boost::posix_time::second_clock::universal_time();
-        boost::posix_time::time_duration  tt = curr.time_of_day();
-        boost::posix_time::time_duration  callTime = tZone.time_of_day();
-        if (tt >= callTime)
+        //boost::posix_time::time_duration  tt = curr.time_of_day();
+        //boost::posix_time::time_duration  callTime = tZone.time_of_day();
+        //if (tt >= callTime)
+        if (curr > tZone)
         {
             tZone += boost::gregorian::days(1);
         }
