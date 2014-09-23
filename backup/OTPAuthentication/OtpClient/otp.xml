@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<otp>
+  <secretCode>12345678901234567890</secretCode>
+  <counter>0</counter>
+</otp>
