@@ -1,1 +1,0 @@
-link ./Atomic/Atomic_gcc_x86.cpp
